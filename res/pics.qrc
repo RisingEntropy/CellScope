@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>select.svg</file>
+    <file>hand.svg</file>
+    <file>new.svg</file>
+    <file>open.svg</file>
+    <file>preferences.svg</file>
+  </qresource>
+</RCC>

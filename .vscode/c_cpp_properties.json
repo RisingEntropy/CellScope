@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "compileCommands": ".vscode/compile_commands.json",
+            "includePath": [
+                "${default}",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtCore",
+                "C:/Qt/5.15.2/msvc2019_64/include",
+                "C:/Users/RisingEntropy/AppData/Local/.xmake/packages/n/ncnn_shared/20240102/7d09286303c54723b3807919585af769/include",
+                "${workspaceFolder}/src",
+                "C:/Users/RisingEntropy/AppData/Local/.xmake/packages/o/opencv/4.9.0/407fafd8edd84073950138a56d3428cc/include",
+                "${workspaceFolder}/src/AIBackend",
+                "C:/Users/RisingEntropy/AppData/Local/.xmake/packages/o/openslide/20231011/ca572ea2b73b432e901e8a0d7e69a7e7/include",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtGui",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtWidgets",
+                "${workspaceFolder}/build/.gens/CellScope/windows/x64/release/rules/qt/ui"
+            ]
+        }
+    ],
+    "version": 4
+}
