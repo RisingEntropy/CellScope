@@ -59,12 +59,6 @@ void cleanUp(){
 int main(int argc, char *argv[]){
     QApplication a(argc,argv);
     init();
-    qDebug()<<"main thread:"<<QThread::currentThreadId();
-    // AIProcessWindow w;
-    // w.show();
-    // RenderThread render;
-    
-    // QSharedPointer<OpenSlideFileReader> reader(new OpenSlideFileReader(R"(C:\Users\RisingEntropy\Downloads\001961-2a  vim_d_8_20220926195850_m1.svs)"));
     
     MainWindow w;
     w.show();

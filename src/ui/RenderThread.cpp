@@ -2,22 +2,30 @@
 #include <QDebug>
 #include <QDateTime>
 #include <opencv2/opencv.hpp>
+#include "../scopeFile/MaskImage.h"
 #include <QGraphicsPixmapItem>
 RenderThread::RenderThread(int tileSize){
     this->tileSize = tileSize;
     this->moveToThread(&thread);
     connect(this,&RenderThread::internalRequestRegion,this,&RenderThread::_requestRegion);
+
     connect(this,&RenderThread::internalInstallTiledImage,this,&RenderThread::_installTiledImage);
+    connect(this,&RenderThread::internalInstallTiledImagePointer,this,&RenderThread::_installTiledImagePointer);
     connect(this,&RenderThread::internalUninstallTiledImage,this,&RenderThread::_uninstallTiledImage);
+
     connect(this,&RenderThread::internalInstallScopeFile,this,&RenderThread::_installScopeFile);
+    connect(this,&RenderThread::internalInstallScopeFilePointer,this,&RenderThread::_installScopeFilePointer);
     connect(this,&RenderThread::internalUninstallScopeFile,this,&RenderThread::_uninstallScopeFile);
+
     connect(this,&RenderThread::internalCountCellNums,this,&RenderThread::_countCellNums);
     connect(this,&RenderThread::internalCountCellSize,this,&RenderThread::_countCellSize);
+    connect(this,&RenderThread::internalRenderMask,this,&RenderThread::_renderMask);
     thread.start();
     while(!thread.isRunning());
     qDebug()<<"RenderThread started";
 }
 void RenderThread::requestRegion(int64_t level, QRectF FOVImage){
+
     emit internalRequestRegion(level,FOVImage);
 }
 RenderThread::~RenderThread()
@@ -27,8 +35,18 @@ RenderThread::~RenderThread()
     qDebug()<<"RenderThread deconstructed";
 }
 
+void RenderThread::stop(){
+    thread.quit();
+    thread.wait();
+    qDebug()<<"RenderThread stopped";
+}
+
 void RenderThread::installTiledImage(QString path){
     emit internalInstallTiledImage(path);
+}
+
+void RenderThread::installTiledImage(QSharedPointer<OpenSlideFileReader> reader){
+    emit internalInstallTiledImagePointer(reader);
 }
 
 void RenderThread::uninstallTiledImage(){
@@ -37,6 +55,10 @@ void RenderThread::uninstallTiledImage(){
 
 void RenderThread::installScopeFile(QString path){
     emit internalInstallScopeFile(path);
+}
+
+void RenderThread::installScopeFile(QSharedPointer<ScopeFileReader> reader){
+    emit internalInstallScopeFilePointer(reader);
 }
 
 void RenderThread::uninstallScopeFile(){
@@ -63,25 +85,100 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
         qDebug()<<"tileFileReader is null, cannot render shift.";
         return;
     }
-    int64_t x = FOVImage.left();
-    int64_t y = FOVImage.top();
-    int64_t width = FOVImage.width();
-    int64_t height = FOVImage.height();
-    cv::Mat region = this->tiledFileReader->getRegionMat(level,qMax(0LL,x),qMax(0LL,y),qMin(this->tiledFileReader->getLevelWidth(level)-x,width),qMin(this->tiledFileReader->getLevelHeight(level)-y,height));
-    QImage image(region.data, region.cols, region.rows, region.step, QImage::Format_RGB888);
-    QPixmap pixmap = QPixmap::fromImage(image);
-    QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap);
-    item->setPos(qMax(0LL,x),qMax(0LL,y));
-    emit addTile(item);
 
+    int64_t levelWidth = this->tiledFileReader->getLevelWidth(level);
+    int64_t levelHeight = this->tiledFileReader->getLevelHeight(level);
+    auto overlap = [](int64_t x, int64_t y, int64_t w, int64_t h, QRectF FOV){
+        return (x+w > FOV.x() && x < FOV.x()+FOV.width() && y+h > FOV.y() && y < FOV.y()+FOV.height());
+    };
+    auto maxMultiple = [](int64_t x, int64_t y){return x / y * y;};
+    auto levelScale = this->tiledFileReader->getScaleBetweenLevels(0, level);
+    for(auto &x:this->cache[level].keys()){
+        if(!overlap(std::get<0>(x)*levelScale,std::get<1>(x)*levelScale,this->tileSize*levelScale,this->tileSize*levelScale,FOVImage)){
+            emit removeTile(this->cache[level][x]);
+            this->cache[level].remove(x);
+        }
+    }
+    for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
+        if(i!=level){
+            for(auto &x:this->cache[i].keys()){
+                if(overlap(std::get<0>(x),std::get<1>(x),this->tileSize,this->tileSize,FOVImage)){
+                    emit removeTile(this->cache[i][x]);
+                    this->cache[i].remove(x);
+                }
+            }
+        }
+    }
+    int64_t xInLevel = FOVImage.x() / this->tiledFileReader->getScaleBetweenLevels(0, level);
+    int64_t yInLevel = FOVImage.y() / this->tiledFileReader->getScaleBetweenLevels(0, level);
+    int64_t widthInLevel = FOVImage.width() / this->tiledFileReader->getScaleBetweenLevels(0, level);
+    int64_t heightInLevel = FOVImage.height() / this->tiledFileReader->getScaleBetweenLevels(0, level);
+    for(int64_t x = maxMultiple(xInLevel,this->tileSize);x <=xInLevel+widthInLevel;x+=this->tileSize){
+        for(int64_t y = maxMultiple(yInLevel,this->tileSize);y <=yInLevel+heightInLevel;y+=this->tileSize){
+            int64_t actualX = x*this->tiledFileReader->getScaleBetweenLevels(0, level);
+            int64_t actualY = y*this->tiledFileReader->getScaleBetweenLevels(0, level);
+            if(this->cache[level].contains(std::make_tuple(x,y,level))){
+                continue;
+            }
+            if(x>=levelWidth || y>=levelHeight){
+                continue;
+            }
+            auto img = this->tiledFileReader->getRegionMat(level,actualX,actualY,qMin(this->tileSize*1LL,levelWidth-1-x+1),qMin(this->tileSize*1LL,levelHeight-1-y+1));
+            if(img.empty()){
+                continue;
+            }
+            if(this->renderMaskFlag){
+                auto maskImage = this->scopeFileReader->readRegion(level, x,y,
+                                                                    qMin(this->tileSize*1LL,levelWidth-1-x+1),
+                                                                    qMin(this->tileSize*1LL,levelHeight-1-y+1));
+                if(!maskImage.valid()){
+                    qDebug()<<"maskImage is invalid. x:"<<x<<",y:"<<y<<",tileSize"<< this->tileSize<<",level:"<<level<<" levelWidth:"<<levelWidth<<" levelHeight:"<<levelHeight;
+                    continue;
+                }
+                cv::Mat mask = maskImage.toMat();
+                if(!mask.empty()){
+                    cv::cvtColor(mask,mask, cv::COLOR_GRAY2RGB);
+                    cv::addWeighted(img,(1-this->maskWeight),mask,this->maskWeight,0,img);
+                }else{
+                    qDebug()<<"mask is empty";
+                }
+            }
+            auto item = QSharedPointer<QGraphicsPixmapItem>(new QGraphicsPixmapItem(QPixmap::fromImage(QImage(img.data,img.cols,img.rows,img.step,QImage::Format_RGB888))));
+            item->setPos(x*this->tiledFileReader->getScaleBetweenLevels(0, level),y*this->tiledFileReader->getScaleBetweenLevels(0, level));
+            item->setScale(this->tiledFileReader->getScaleBetweenLevels(0, level));
+            this->cache[level][std::make_tuple(x,y,level)] = item;
+            emit addTile(item);
+        }
+    }
 }
 
 void RenderThread::_installTiledImage(QString path){
     this->tiledFileReader.reset(new OpenSlideFileReader(path));
+    this->cache.clear();
+    for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
+        this->cache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, QSharedPointer<QGraphicsPixmapItem> >());
+    }
+    this->tiledFileReaderInstalled = true;
+
+}
+void RenderThread::_installTiledImagePointer(QSharedPointer<OpenSlideFileReader> reader){
+    this->tiledFileReader = reader;
+    this->cache.clear();
+    for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
+        this->cache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, QSharedPointer<QGraphicsPixmapItem> >());
+    }
     this->tiledFileReaderInstalled = true;
 }
 void RenderThread::_uninstallTiledImage(){
-    this->tiledFileReader.reset();
+    if(!this->tiledFileReader.isNull()){
+        for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
+            for(auto &x:this->cache[i].keys()){
+                emit removeTile(this->cache[i][x]);
+                this->cache[i].remove(x);
+            }
+        }
+        this->tiledFileReader.reset();
+    }
     this->tiledFileReaderInstalled = false;
 }
 void RenderThread::_installScopeFile(QString path){
@@ -90,7 +187,13 @@ void RenderThread::_installScopeFile(QString path){
     emit updateScopeFileMetaData(this->scopeFileReader->getMetaData());
 
 }
-void RenderThread::_uninstallScopeFile(){
+void RenderThread::_installScopeFilePointer(QSharedPointer<ScopeFileReader> reader){
+    this->scopeFileReader = reader;
+    this->scopeFileReaderInstalled = true;
+    emit updateScopeFileMetaData(this->scopeFileReader->getMetaData());
+}
+void RenderThread::_uninstallScopeFile()
+{
     this->scopeFileReaderInstalled = false;
     this->scopeFileReader.reset();
 }
@@ -105,4 +208,13 @@ void RenderThread::_countCellSize(){
 
 void RenderThread::_renderMask(bool renderMaskFlag){
     this->renderMaskFlag = renderMaskFlag;
+    if(this->tiledFileReader.isNull()){
+        return;
+    }
+    for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
+        for(auto &x:this->cache[i].keys()){
+            emit removeTile(this->cache[i][x]);
+            this->cache[i].remove(x);
+        }
+    }
 }

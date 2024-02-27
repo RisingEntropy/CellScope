@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="7,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="9,1">
     <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
@@ -28,193 +28,175 @@
      </widget>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_6">
-      <item>
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="title">
-         <string>Information</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,1,1,1,1,5">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Information</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QLabel" name="label_2">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Total Area:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelTotalArea">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>114514</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QLabel" name="label_3">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Total Cell Area:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelTotalCellArea">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>1919817</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Current Area:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelCurrentArea">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>2024</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QLabel" name="label_5">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Current Cell Area:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelCurrentCellArea">
-             <property name="font">
-              <font>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>1307</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBoxSegmentationMask">
+          <widget class="QLabel" name="label_2">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
            <property name="text">
-            <string>Segmentation Mask On</string>
+            <string>Total Area:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="labelOverview">
+          <widget class="QLabel" name="labelTotalArea">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
            <property name="text">
-            <string/>
+            <string>N/A</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="title">
-         <string>Log</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QTextEdit" name="textEdit">
-           <property name="enabled">
-            <bool>true</bool>
+          <widget class="QLabel" name="label_3">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
            </property>
-           <property name="styleSheet">
-            <string notr="true"/>
+           <property name="text">
+            <string>Total Cell Area:</string>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelTotalCellArea">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
            </property>
-           <property name="undoRedoEnabled">
-            <bool>false</bool>
+           <property name="text">
+            <string>N/A</string>
            </property>
-           <property name="lineWrapMode">
-            <enum>QTextEdit::NoWrap</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="html">
-            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-     </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Current Area:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelCurrentArea">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>N/A</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Current Cell Area:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelCurrentCellArea">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>N/A</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="SelectMastButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Select Mask</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxSegmentationMask">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>No Mask Chosen</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelCurrentCellArea_2">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Mask Info:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="tableView"/>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -232,7 +214,7 @@ p, li { white-space: pre-wrap; }
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
-    <addaction name="actionNew"/>
+    <addaction name="actionAISegmenter"/>
     <addaction name="actionPreference"/>
    </widget>
    <addaction name="menuFile"/>
@@ -245,11 +227,9 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen"/>
-   <addaction name="actionNew"/>
+   <addaction name="actionAISegmenter"/>
    <addaction name="actionPreference"/>
    <addaction name="separator"/>
-   <addaction name="actionScroll"/>
-   <addaction name="actionSelectArea"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
@@ -261,13 +241,13 @@ p, li { white-space: pre-wrap; }
     <string>Open</string>
    </property>
   </action>
-  <action name="actionNew">
+  <action name="actionAISegmenter">
    <property name="icon">
     <iconset resource="../../res/pics.qrc">
-     <normaloff>:/icons/new.svg</normaloff>:/icons/new.svg</iconset>
+     <normaloff>:/icons/AI.svg</normaloff>:/icons/AI.svg</iconset>
    </property>
    <property name="text">
-    <string>New Project</string>
+    <string>AI Segmenter</string>
    </property>
   </action>
   <action name="actionPreference">
@@ -277,24 +257,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Preference</string>
-   </property>
-  </action>
-  <action name="actionScroll">
-   <property name="icon">
-    <iconset resource="../../res/pics.qrc">
-     <normaloff>:/icons/hand.svg</normaloff>:/icons/hand.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Scroll</string>
-   </property>
-  </action>
-  <action name="actionSelectArea">
-   <property name="icon">
-    <iconset resource="../../res/pics.qrc">
-     <normaloff>:/icons/select.svg</normaloff>:/icons/select.svg</iconset>
-   </property>
-   <property name="text">
-    <string>SelectArea</string>
    </property>
   </action>
  </widget>
@@ -309,5 +271,59 @@ p, li { white-space: pre-wrap; }
  <resources>
   <include location="../../res/pics.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>SelectMastButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>SelectMask()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1014</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>882</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mainToolBar</sender>
+   <signal>actionTriggered(QAction*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ActionClicked(QAction*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>46</x>
+     <y>62</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxSegmentationMask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>turnMask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>949</x>
+     <y>307</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>916</x>
+     <y>252</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>SelectMask()</slot>
+  <slot>ActionClicked(QAction*)</slot>
+  <slot>turnMask(bool)</slot>
+ </slots>
 </ui>

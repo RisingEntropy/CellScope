@@ -96,7 +96,9 @@ cv::Mat OpenSlideFileReader::getRegionMat(int32_t level, int64_t x, int64_t y, i
         qDebug()<<"OpenSlideFileReader: getRegionMat called on an invalid object!";
         return cv::Mat();
     }
-    if(x<0||y<0||w<0||h<0||level<0||level>=this->getLevelCount()||x+w>this->getLevelWidth(level)||y+h>this->getLevelHeight(level)){
+    double levelX = x/this->getLevelDownsample(level);
+    double levelY = y/this->getLevelDownsample(level);
+    if(x<0||y<0||w<0||h<0||level<0||level>=this->getLevelCount()||x>this->getLevelWidth(0)||y>this->getLevelHeight(0)||levelX+w>this->getLevelWidth(level)||levelY+h>this->getLevelHeight(level)){
         qWarning()<<"OpenSlideFileReader: getRegionMat called with invalid parameters: x:"<<x<<" y:"<<y<<" w:"<<w<<" h:"<<h<<" level:"<<level<<" levelWidth:"<<this->getLevelWidth(level)<<" levelHeight:"<<this->getLevelHeight(level)<<"!";
         return cv::Mat();
     }

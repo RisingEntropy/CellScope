@@ -1,0 +1,118 @@
+7767517
+116 141
+Input            input                    0 1 input
+Split            splitncnn_input0         1 2 input input_splitncnn_0 input_splitncnn_1
+Convolution      /resblock1/downsample/downsample.0/Conv 1 1 input_splitncnn_1 /resblock1/downsample/downsample.0/Conv_output_0 0=32 1=1 11=1 2=1 12=1 3=1 13=1 4=0 14=0 15=0 16=0 5=1 6=128
+Convolution      /resblock1/double_conv/double_conv/double_conv.0/Conv 1 1 input_splitncnn_0 /resblock1/double_conv/double_conv/double_conv.0/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=1152
+ReLU             /resblock1/double_conv/double_conv/double_conv.2/Relu 1 1 /resblock1/double_conv/double_conv/double_conv.0/Conv_output_0 /resblock1/double_conv/double_conv/double_conv.2/Relu_output_0
+Convolution      /resblock1/double_conv/double_conv/double_conv.3/Conv 1 1 /resblock1/double_conv/double_conv/double_conv.2/Relu_output_0 /resblock1/double_conv/double_conv/double_conv.3/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=9216
+ReLU             /resblock1/double_conv/double_conv/double_conv.5/Relu 1 1 /resblock1/double_conv/double_conv/double_conv.3/Conv_output_0 /resblock1/double_conv/double_conv/double_conv.5/Relu_output_0
+BinaryOp         /resblock1/Add           2 1 /resblock1/double_conv/double_conv/double_conv.5/Relu_output_0 /resblock1/downsample/downsample.0/Conv_output_0 /resblock1/Add_output_0 0=0
+ReLU             /resblock1/relu/Relu     1 1 /resblock1/Add_output_0 /resblock1/relu/Relu_output_0
+Split            splitncnn_0              1 5 /resblock1/relu/Relu_output_0 /resblock1/relu/Relu_output_0_splitncnn_0 /resblock1/relu/Relu_output_0_splitncnn_1 /resblock1/relu/Relu_output_0_splitncnn_2 /resblock1/relu/Relu_output_0_splitncnn_3 /resblock1/relu/Relu_output_0_splitncnn_4
+Pooling          /resblock1/down_sample/MaxPool 1 1 /resblock1/relu/Relu_output_0_splitncnn_4 /resblock1/down_sample/MaxPool_output_0 0=0 1=2 11=2 2=2 12=2 3=0 13=0 14=0 15=0 5=1
+Split            splitncnn_1              1 2 /resblock1/down_sample/MaxPool_output_0 /resblock1/down_sample/MaxPool_output_0_splitncnn_0 /resblock1/down_sample/MaxPool_output_0_splitncnn_1
+Convolution      /resblock2/downsample/downsample.0/Conv 1 1 /resblock1/down_sample/MaxPool_output_0_splitncnn_1 /resblock2/downsample/downsample.0/Conv_output_0 0=64 1=1 11=1 2=1 12=1 3=1 13=1 4=0 14=0 15=0 16=0 5=1 6=2048
+Convolution      /resblock2/double_conv/double_conv/double_conv.0/Conv 1 1 /resblock1/down_sample/MaxPool_output_0_splitncnn_0 /resblock2/double_conv/double_conv/double_conv.0/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=18432
+ReLU             /resblock2/double_conv/double_conv/double_conv.2/Relu 1 1 /resblock2/double_conv/double_conv/double_conv.0/Conv_output_0 /resblock2/double_conv/double_conv/double_conv.2/Relu_output_0
+Convolution      /resblock2/double_conv/double_conv/double_conv.3/Conv 1 1 /resblock2/double_conv/double_conv/double_conv.2/Relu_output_0 /resblock2/double_conv/double_conv/double_conv.3/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=36864
+ReLU             /resblock2/double_conv/double_conv/double_conv.5/Relu 1 1 /resblock2/double_conv/double_conv/double_conv.3/Conv_output_0 /resblock2/double_conv/double_conv/double_conv.5/Relu_output_0
+BinaryOp         /resblock2/Add           2 1 /resblock2/double_conv/double_conv/double_conv.5/Relu_output_0 /resblock2/downsample/downsample.0/Conv_output_0 /resblock2/Add_output_0 0=0
+ReLU             /resblock2/relu/Relu     1 1 /resblock2/Add_output_0 /resblock2/relu/Relu_output_0
+Split            splitncnn_2              1 5 /resblock2/relu/Relu_output_0 /resblock2/relu/Relu_output_0_splitncnn_0 /resblock2/relu/Relu_output_0_splitncnn_1 /resblock2/relu/Relu_output_0_splitncnn_2 /resblock2/relu/Relu_output_0_splitncnn_3 /resblock2/relu/Relu_output_0_splitncnn_4
+Pooling          /resblock2/down_sample/MaxPool 1 1 /resblock2/relu/Relu_output_0_splitncnn_4 /resblock2/down_sample/MaxPool_output_0 0=0 1=2 11=2 2=2 12=2 3=0 13=0 14=0 15=0 5=1
+Split            splitncnn_3              1 2 /resblock2/down_sample/MaxPool_output_0 /resblock2/down_sample/MaxPool_output_0_splitncnn_0 /resblock2/down_sample/MaxPool_output_0_splitncnn_1
+Convolution      /resblock3/downsample/downsample.0/Conv 1 1 /resblock2/down_sample/MaxPool_output_0_splitncnn_1 /resblock3/downsample/downsample.0/Conv_output_0 0=128 1=1 11=1 2=1 12=1 3=1 13=1 4=0 14=0 15=0 16=0 5=1 6=8192
+Convolution      /resblock3/double_conv/double_conv/double_conv.0/Conv 1 1 /resblock2/down_sample/MaxPool_output_0_splitncnn_0 /resblock3/double_conv/double_conv/double_conv.0/Conv_output_0 0=128 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=73728
+ReLU             /resblock3/double_conv/double_conv/double_conv.2/Relu 1 1 /resblock3/double_conv/double_conv/double_conv.0/Conv_output_0 /resblock3/double_conv/double_conv/double_conv.2/Relu_output_0
+Convolution      /resblock3/double_conv/double_conv/double_conv.3/Conv 1 1 /resblock3/double_conv/double_conv/double_conv.2/Relu_output_0 /resblock3/double_conv/double_conv/double_conv.3/Conv_output_0 0=128 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=147456
+ReLU             /resblock3/double_conv/double_conv/double_conv.5/Relu 1 1 /resblock3/double_conv/double_conv/double_conv.3/Conv_output_0 /resblock3/double_conv/double_conv/double_conv.5/Relu_output_0
+BinaryOp         /resblock3/Add           2 1 /resblock3/double_conv/double_conv/double_conv.5/Relu_output_0 /resblock3/downsample/downsample.0/Conv_output_0 /resblock3/Add_output_0 0=0
+ReLU             /resblock3/relu/Relu     1 1 /resblock3/Add_output_0 /resblock3/relu/Relu_output_0
+Split            splitncnn_4              1 4 /resblock3/relu/Relu_output_0 /resblock3/relu/Relu_output_0_splitncnn_0 /resblock3/relu/Relu_output_0_splitncnn_1 /resblock3/relu/Relu_output_0_splitncnn_2 /resblock3/relu/Relu_output_0_splitncnn_3
+Pooling          /resblock3/down_sample/MaxPool 1 1 /resblock3/relu/Relu_output_0_splitncnn_3 /resblock3/down_sample/MaxPool_output_0 0=0 1=2 11=2 2=2 12=2 3=0 13=0 14=0 15=0 5=1
+Split            splitncnn_5              1 2 /resblock3/down_sample/MaxPool_output_0 /resblock3/down_sample/MaxPool_output_0_splitncnn_0 /resblock3/down_sample/MaxPool_output_0_splitncnn_1
+Convolution      /resblock4/downsample/downsample.0/Conv 1 1 /resblock3/down_sample/MaxPool_output_0_splitncnn_1 /resblock4/downsample/downsample.0/Conv_output_0 0=256 1=1 11=1 2=1 12=1 3=1 13=1 4=0 14=0 15=0 16=0 5=1 6=32768
+Convolution      /resblock4/double_conv/double_conv/double_conv.0/Conv 1 1 /resblock3/down_sample/MaxPool_output_0_splitncnn_0 /resblock4/double_conv/double_conv/double_conv.0/Conv_output_0 0=256 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=294912
+ReLU             /resblock4/double_conv/double_conv/double_conv.2/Relu 1 1 /resblock4/double_conv/double_conv/double_conv.0/Conv_output_0 /resblock4/double_conv/double_conv/double_conv.2/Relu_output_0
+Convolution      /resblock4/double_conv/double_conv/double_conv.3/Conv 1 1 /resblock4/double_conv/double_conv/double_conv.2/Relu_output_0 /resblock4/double_conv/double_conv/double_conv.3/Conv_output_0 0=256 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=589824
+ReLU             /resblock4/double_conv/double_conv/double_conv.5/Relu 1 1 /resblock4/double_conv/double_conv/double_conv.3/Conv_output_0 /resblock4/double_conv/double_conv/double_conv.5/Relu_output_0
+BinaryOp         /resblock4/Add           2 1 /resblock4/double_conv/double_conv/double_conv.5/Relu_output_0 /resblock4/downsample/downsample.0/Conv_output_0 /resblock4/Add_output_0 0=0
+ReLU             /resblock4/relu/Relu     1 1 /resblock4/Add_output_0 /resblock4/relu/Relu_output_0
+Split            splitncnn_6              1 3 /resblock4/relu/Relu_output_0 /resblock4/relu/Relu_output_0_splitncnn_0 /resblock4/relu/Relu_output_0_splitncnn_1 /resblock4/relu/Relu_output_0_splitncnn_2
+Pooling          /resblock4/down_sample/MaxPool 1 1 /resblock4/relu/Relu_output_0_splitncnn_2 /resblock4/down_sample/MaxPool_output_0 0=0 1=2 11=2 2=2 12=2 3=0 13=0 14=0 15=0 5=1
+Split            splitncnn_7              1 2 /resblock4/down_sample/MaxPool_output_0 /resblock4/down_sample/MaxPool_output_0_splitncnn_0 /resblock4/down_sample/MaxPool_output_0_splitncnn_1
+Convolution      /resblock5/downsample/downsample.0/Conv 1 1 /resblock4/down_sample/MaxPool_output_0_splitncnn_1 /resblock5/downsample/downsample.0/Conv_output_0 0=512 1=1 11=1 2=1 12=1 3=1 13=1 4=0 14=0 15=0 16=0 5=1 6=131072
+Convolution      /resblock5/double_conv/double_conv/double_conv.0/Conv 1 1 /resblock4/down_sample/MaxPool_output_0_splitncnn_0 /resblock5/double_conv/double_conv/double_conv.0/Conv_output_0 0=512 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=1179648
+ReLU             /resblock5/double_conv/double_conv/double_conv.2/Relu 1 1 /resblock5/double_conv/double_conv/double_conv.0/Conv_output_0 /resblock5/double_conv/double_conv/double_conv.2/Relu_output_0
+Convolution      /resblock5/double_conv/double_conv/double_conv.3/Conv 1 1 /resblock5/double_conv/double_conv/double_conv.2/Relu_output_0 /resblock5/double_conv/double_conv/double_conv.3/Conv_output_0 0=512 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=2359296
+ReLU             /resblock5/double_conv/double_conv/double_conv.5/Relu 1 1 /resblock5/double_conv/double_conv/double_conv.3/Conv_output_0 /resblock5/double_conv/double_conv/double_conv.5/Relu_output_0
+BinaryOp         /resblock5/Add           2 1 /resblock5/double_conv/double_conv/double_conv.5/Relu_output_0 /resblock5/downsample/downsample.0/Conv_output_0 /resblock5/Add_output_0 0=0
+ReLU             /resblock5/relu/Relu     1 1 /resblock5/Add_output_0 /resblock5/relu/Relu_output_0
+Interp           /up/Resize               1 1 /resblock2/relu/Relu_output_0_splitncnn_3 /up/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat                  2 1 /resblock1/relu/Relu_output_0_splitncnn_3 /up/Resize_output_0 /Concat_output_0 0=0
+Convolution      /conv0_1/conv1/Conv      1 1 /Concat_output_0 /conv0_1/conv1/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=27648
+ReLU             /conv0_1/act_func/Relu   1 1 /conv0_1/conv1/Conv_output_0 /conv0_1/act_func/Relu_output_0
+Convolution      /conv0_1/conv2/Conv      1 1 /conv0_1/act_func/Relu_output_0 /conv0_1/conv2/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=9216
+ReLU             /conv0_1/act_func_1/Relu 1 1 /conv0_1/conv2/Conv_output_0 /conv0_1/act_func_1/Relu_output_0
+Split            splitncnn_8              1 3 /conv0_1/act_func_1/Relu_output_0 /conv0_1/act_func_1/Relu_output_0_splitncnn_0 /conv0_1/act_func_1/Relu_output_0_splitncnn_1 /conv0_1/act_func_1/Relu_output_0_splitncnn_2
+Interp           /up_1/Resize             1 1 /resblock3/relu/Relu_output_0_splitncnn_2 /up_1/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_1                2 1 /resblock2/relu/Relu_output_0_splitncnn_2 /up_1/Resize_output_0 /Concat_1_output_0 0=0
+Convolution      /conv1_1/conv1/Conv      1 1 /Concat_1_output_0 /conv1_1/conv1/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=110592
+ReLU             /conv1_1/act_func/Relu   1 1 /conv1_1/conv1/Conv_output_0 /conv1_1/act_func/Relu_output_0
+Convolution      /conv1_1/conv2/Conv      1 1 /conv1_1/act_func/Relu_output_0 /conv1_1/conv2/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=36864
+ReLU             /conv1_1/act_func_1/Relu 1 1 /conv1_1/conv2/Conv_output_0 /conv1_1/act_func_1/Relu_output_0
+Split            splitncnn_9              1 3 /conv1_1/act_func_1/Relu_output_0 /conv1_1/act_func_1/Relu_output_0_splitncnn_0 /conv1_1/act_func_1/Relu_output_0_splitncnn_1 /conv1_1/act_func_1/Relu_output_0_splitncnn_2
+Interp           /up_2/Resize             1 1 /conv1_1/act_func_1/Relu_output_0_splitncnn_2 /up_2/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_2                3 1 /resblock1/relu/Relu_output_0_splitncnn_2 /conv0_1/act_func_1/Relu_output_0_splitncnn_2 /up_2/Resize_output_0 /Concat_2_output_0 0=0
+Convolution      /conv0_2/conv1/Conv      1 1 /Concat_2_output_0 /conv0_2/conv1/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=36864
+ReLU             /conv0_2/act_func/Relu   1 1 /conv0_2/conv1/Conv_output_0 /conv0_2/act_func/Relu_output_0
+Convolution      /conv0_2/conv2/Conv      1 1 /conv0_2/act_func/Relu_output_0 /conv0_2/conv2/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=9216
+ReLU             /conv0_2/act_func_1/Relu 1 1 /conv0_2/conv2/Conv_output_0 /conv0_2/act_func_1/Relu_output_0
+Split            splitncnn_10             1 2 /conv0_2/act_func_1/Relu_output_0 /conv0_2/act_func_1/Relu_output_0_splitncnn_0 /conv0_2/act_func_1/Relu_output_0_splitncnn_1
+Interp           /up_3/Resize             1 1 /resblock4/relu/Relu_output_0_splitncnn_1 /up_3/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_3                2 1 /resblock3/relu/Relu_output_0_splitncnn_1 /up_3/Resize_output_0 /Concat_3_output_0 0=0
+Convolution      /conv2_1/conv1/Conv      1 1 /Concat_3_output_0 /conv2_1/conv1/Conv_output_0 0=128 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=442368
+ReLU             /conv2_1/act_func/Relu   1 1 /conv2_1/conv1/Conv_output_0 /conv2_1/act_func/Relu_output_0
+Convolution      /conv2_1/conv2/Conv      1 1 /conv2_1/act_func/Relu_output_0 /conv2_1/conv2/Conv_output_0 0=128 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=147456
+ReLU             /conv2_1/act_func_1/Relu 1 1 /conv2_1/conv2/Conv_output_0 /conv2_1/act_func_1/Relu_output_0
+Split            splitncnn_11             1 2 /conv2_1/act_func_1/Relu_output_0 /conv2_1/act_func_1/Relu_output_0_splitncnn_0 /conv2_1/act_func_1/Relu_output_0_splitncnn_1
+Interp           /up_4/Resize             1 1 /conv2_1/act_func_1/Relu_output_0_splitncnn_1 /up_4/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_4                3 1 /resblock2/relu/Relu_output_0_splitncnn_1 /conv1_1/act_func_1/Relu_output_0_splitncnn_1 /up_4/Resize_output_0 /Concat_4_output_0 0=0
+Convolution      /conv1_2/conv1/Conv      1 1 /Concat_4_output_0 /conv1_2/conv1/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=147456
+ReLU             /conv1_2/act_func/Relu   1 1 /conv1_2/conv1/Conv_output_0 /conv1_2/act_func/Relu_output_0
+Convolution      /conv1_2/conv2/Conv      1 1 /conv1_2/act_func/Relu_output_0 /conv1_2/conv2/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=36864
+ReLU             /conv1_2/act_func_1/Relu 1 1 /conv1_2/conv2/Conv_output_0 /conv1_2/act_func_1/Relu_output_0
+Split            splitncnn_12             1 2 /conv1_2/act_func_1/Relu_output_0 /conv1_2/act_func_1/Relu_output_0_splitncnn_0 /conv1_2/act_func_1/Relu_output_0_splitncnn_1
+Interp           /up_5/Resize             1 1 /conv1_2/act_func_1/Relu_output_0_splitncnn_1 /up_5/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_5                4 1 /resblock1/relu/Relu_output_0_splitncnn_1 /conv0_1/act_func_1/Relu_output_0_splitncnn_1 /conv0_2/act_func_1/Relu_output_0_splitncnn_1 /up_5/Resize_output_0 /Concat_5_output_0 0=0
+Convolution      /conv0_3/conv1/Conv      1 1 /Concat_5_output_0 /conv0_3/conv1/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=46080
+ReLU             /conv0_3/act_func/Relu   1 1 /conv0_3/conv1/Conv_output_0 /conv0_3/act_func/Relu_output_0
+Convolution      /conv0_3/conv2/Conv      1 1 /conv0_3/act_func/Relu_output_0 /conv0_3/conv2/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=9216
+ReLU             /conv0_3/act_func_1/Relu 1 1 /conv0_3/conv2/Conv_output_0 /conv0_3/act_func_1/Relu_output_0
+Interp           /up_6/Resize             1 1 /resblock5/relu/Relu_output_0 /up_6/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_6                2 1 /resblock4/relu/Relu_output_0_splitncnn_0 /up_6/Resize_output_0 /Concat_6_output_0 0=0
+Convolution      /conv3_1/conv1/Conv      1 1 /Concat_6_output_0 /conv3_1/conv1/Conv_output_0 0=256 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=1769472
+ReLU             /conv3_1/act_func/Relu   1 1 /conv3_1/conv1/Conv_output_0 /conv3_1/act_func/Relu_output_0
+Convolution      /conv3_1/conv2/Conv      1 1 /conv3_1/act_func/Relu_output_0 /conv3_1/conv2/Conv_output_0 0=256 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=589824
+ReLU             /conv3_1/act_func_1/Relu 1 1 /conv3_1/conv2/Conv_output_0 /conv3_1/act_func_1/Relu_output_0
+Interp           /up_7/Resize             1 1 /conv3_1/act_func_1/Relu_output_0 /up_7/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_7                3 1 /resblock3/relu/Relu_output_0_splitncnn_0 /conv2_1/act_func_1/Relu_output_0_splitncnn_0 /up_7/Resize_output_0 /Concat_7_output_0 0=0
+Convolution      /conv2_2/conv1/Conv      1 1 /Concat_7_output_0 /conv2_2/conv1/Conv_output_0 0=128 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=589824
+ReLU             /conv2_2/act_func/Relu   1 1 /conv2_2/conv1/Conv_output_0 /conv2_2/act_func/Relu_output_0
+Convolution      /conv2_2/conv2/Conv      1 1 /conv2_2/act_func/Relu_output_0 /conv2_2/conv2/Conv_output_0 0=128 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=147456
+ReLU             /conv2_2/act_func_1/Relu 1 1 /conv2_2/conv2/Conv_output_0 /conv2_2/act_func_1/Relu_output_0
+Interp           /up_8/Resize             1 1 /conv2_2/act_func_1/Relu_output_0 /up_8/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_8                4 1 /resblock2/relu/Relu_output_0_splitncnn_0 /conv1_1/act_func_1/Relu_output_0_splitncnn_0 /conv1_2/act_func_1/Relu_output_0_splitncnn_0 /up_8/Resize_output_0 /Concat_8_output_0 0=0
+Convolution      /conv1_3/conv1/Conv      1 1 /Concat_8_output_0 /conv1_3/conv1/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=184320
+ReLU             /conv1_3/act_func/Relu   1 1 /conv1_3/conv1/Conv_output_0 /conv1_3/act_func/Relu_output_0
+Convolution      /conv1_3/conv2/Conv      1 1 /conv1_3/act_func/Relu_output_0 /conv1_3/conv2/Conv_output_0 0=64 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=36864
+ReLU             /conv1_3/act_func_1/Relu 1 1 /conv1_3/conv2/Conv_output_0 /conv1_3/act_func_1/Relu_output_0
+Interp           /up_9/Resize             1 1 /conv1_3/act_func_1/Relu_output_0 /up_9/Resize_output_0 0=2 1=2.000000e+00 2=2.000000e+00 3=0 4=0 6=1
+Concat           /Concat_9                5 1 /resblock1/relu/Relu_output_0_splitncnn_0 /conv0_1/act_func_1/Relu_output_0_splitncnn_0 /conv0_2/act_func_1/Relu_output_0_splitncnn_0 /conv0_3/act_func_1/Relu_output_0 /up_9/Resize_output_0 /Concat_9_output_0 0=0
+Convolution      /conv0_4/conv1/Conv      1 1 /Concat_9_output_0 /conv0_4/conv1/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=55296
+ReLU             /conv0_4/act_func/Relu   1 1 /conv0_4/conv1/Conv_output_0 /conv0_4/act_func/Relu_output_0
+Convolution      /conv0_4/conv2/Conv      1 1 /conv0_4/act_func/Relu_output_0 /conv0_4/conv2/Conv_output_0 0=32 1=3 11=3 2=1 12=1 3=1 13=1 4=1 14=1 15=1 16=1 5=1 6=9216
+ReLU             /conv0_4/act_func_1/Relu 1 1 /conv0_4/conv2/Conv_output_0 /conv0_4/act_func_1/Relu_output_0
+Convolution      /final/Conv              1 1 /conv0_4/act_func_1/Relu_output_0 /final/Conv_output_0 0=3 1=1 11=1 2=1 12=1 3=1 13=1 4=0 14=0 15=0 16=0 5=1 6=96
+Reduction        /ReduceSum               1 1 /final/Conv_output_0 output 0=0 1=0 -23303=1,0 4=1 5=1

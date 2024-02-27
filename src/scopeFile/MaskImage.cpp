@@ -131,11 +131,11 @@ unsigned char* MaskImage::getRawData(){
 }
 QImage MaskImage::cropToQImage(int64_t x, int64_t y, int64_t w, int64_t h, QImage::Format format){
     if(this->bufSize==-1||this->data==nullptr){
-        qWarning()<<"MaskImage: Try to crop an empty MaskImage!";
+        qWarning()<<"MaskImage: Try to crop an empty MaskImage to a QImage!";
         return QImage();
     }
     if(x<0||x>=this->width||y<0||y>=this->height||w<0||h<0||x+w>this->width||y+h>this->height){
-        qWarning()<<"MaskImage: Try to crop out of range!";
+        qWarning()<<"MaskImage: Try to crop out of range to a QImage!";
         return QImage();
     }
     QImage image(this->data.data(),this->width, this->height, QImage::Format_Mono);
@@ -147,7 +147,7 @@ MaskImage MaskImage::crop(int64_t x, int64_t y, int64_t w, int64_t h){
         return MaskImage();
     }
     if(x<0||x>=this->width||y<0||y>=this->height||w<0||h<0||x+w>this->width||y+h>this->height){
-        qWarning()<<"MaskImage: Try to crop out of range!";
+        qWarning()<<"MaskImage: Try to crop out of range! x:"<<x<<" y:"<<y<<" w:"<<w<<" h:"<<h<<" width:"<<width<<" height:"<<height;
         return MaskImage();
     }
     MaskImage maskImage(w, h);
@@ -171,7 +171,7 @@ cv::Mat MaskImage::cropToMat(int64_t x, int64_t y, int64_t w, int64_t h){
         return cv::Mat();
     }
     if(x<0||x>=this->width||y<0||y>=this->height||w<0||h<0||x+w>this->width||y+h>this->height){
-        qWarning()<<"MaskImage: Try to crop out of range!";
+        qWarning()<<"MaskImage: Try to crop out of range! x:"<<x<<" y:"<<y<<" w:"<<w<<" h:"<<h<<" width:"<<width<<" height:"<<height;
         return cv::Mat();
     }
     cv::Mat mat(h, w, CV_8UC1);
@@ -251,9 +251,8 @@ void MaskImage::fill(MaskImage& maskImage, int64_t x, int64_t y){
     }
 }
 bool MaskImage::valid(){
-    if((this->bufSize!=-1&&this->data!=nullptr)){
+    if((this->bufSize!=-1)&&(this->data!=nullptr)){
         return true;
     }
-    qDebug()<<"MaskImage: strange, it seems we have encounterd a bug, this->bufSize="<<this->bufSize<<", this->data==nullptr:"<<(this->data==nullptr?"true":"false");
     return false;
 }

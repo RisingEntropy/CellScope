@@ -12,6 +12,8 @@
 #include "../onRequestTask/SimpleSyncTask.h"
 #include "../onRequestTask/QueuedAsyncTask.h"
 #include "../onRequestTask/TiledFileAIInferenceTask.h"
+#include "../onRequestTask/FastHashTask.h"
+#include "../Utils.h"
 #include <QMessageBox>
 #include <QCloseEvent>
 AIProcessWindow::AIProcessWindow(QWidget *parent) :
@@ -40,7 +42,7 @@ void AIProcessWindow::closeEvent(QCloseEvent *event){
 void AIProcessWindow::openImageFile()
 {
     QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    this->imagePath = QFileDialog::getOpenFileName(this, tr("Open Image"), desktop, tr("Image Files(*.svs *.tif *.dcm *.vms *.vmu *.ndpi *.scn *.mrxs *.tiff *.svslide *.bif)"));
+    this->imagePath = QFileDialog::getOpenFileName(this, tr("Open Image"), desktop, tr("WSI Files(*.svs *.tif *.dcm *.vms *.vmu *.ndpi *.scn *.mrxs *.tiff *.svslide *.bif)"));
     if(this->imagePath==""){
         QMessageBox::warning(this, tr("Warning"), tr("No image file selected!"));
         this->ui->imageFilePathLabel->setText("");
@@ -93,7 +95,9 @@ void AIProcessWindow::start(){
                                             globalSettings.getDoubleValue("dropEdgeRatio")));
 
     this->task->addTask(aiInferTask);
-    this->task->addTask(new SimpleSyncTask([writer, reader](QString& failReason){
+
+    this->task->addTask(new SimpleSyncTask([writer, reader,this](QString& failReason){
+        writer->getHeader().metaData.setProperty("imageFileFastHash", QString::number(Utils::fashHash(this->imagePath)));
         if(writer->finish()){
             return OnRequestTask::SUCCESS;
         }else{

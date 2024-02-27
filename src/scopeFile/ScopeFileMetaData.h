@@ -11,7 +11,7 @@ public:
     QString comment;
     QMap<QString,QString> properties;
     void setProperty(QString key, QString value);
-    QString getProperty(QString key);
+    QString getProperty(QString key)const;
     static ScopeFileMetaData loadFromJSONString(QString& jsonString);
     static QString dumpToJSONString(const ScopeFileMetaData& metadata);
 };

@@ -4,10 +4,13 @@
 #include <QRectF>
 #include <QImage>
 #include <QTimeLine>
+#include "../GlobalResources.h"
 MainGraphicsView::MainGraphicsView(QWidget *parent):QGraphicsView(parent){
-    // setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setResizeAnchor(QGraphicsView::ViewportAnchor::AnchorViewCenter);
+    qRegisterMetaType<QSharedPointer<QGraphicsPixmapItem>>("QSharedPointer<QGraphicsPixmapItem>");
+    qRegisterMetaType<QSharedPointer<OpenSlideFileReader>>("QSharedPointer<OpenSlideFileReader>");
+
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setDragMode(QGraphicsView::DragMode::NoDrag);
     setContentsMargins(0,0,0,0);
     setAutoFillBackground(true);
@@ -16,163 +19,146 @@ MainGraphicsView::MainGraphicsView(QWidget *parent):QGraphicsView(parent){
     setMouseTracking(true);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+    setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     this->setBackgroundBrush(QBrush(QColor(240, 240, 240)));
     this->scene = new QGraphicsScene();
     this->scene->setBackgroundBrush(QBrush(QColor(240, 240, 240)));
     setScene(this->scene);
-    QImage img;
-    img.load("./R.png");
 
-    this->scene->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(img)));
+    connect(&this->renderThread, &RenderThread::addTile, this, &MainGraphicsView::addNewItem);
+    connect(&this->renderThread, &RenderThread::removeTile, this, &MainGraphicsView::removeItem);
 
 }
 
 MainGraphicsView::~MainGraphicsView(){
-    delete this->scene;
+    this->renderThread.stop();
 }
 
-void MainGraphicsView::setRenderThread(QSharedPointer<RenderThread> renderThread){
-    this->renderThread = renderThread;
+
+
+void MainGraphicsView::setScopeFile(QString filename){
+    this->renderThread.installScopeFile(filename);
+    
 }
 
-void MainGraphicsView::setReader(QSharedPointer<OpenSlideFileReader> reader){
-    this->reader = reader;
+void MainGraphicsView::setOpenSlideFile(QString filename){
+    this->renderThread.uninstallTiledImage();
+    this->reader.reset(new OpenSlideFileReader(filename));
+    this->renderThread.installTiledImage(this->reader);
+    initShow();
 }
 
+void MainGraphicsView::setMaskEnabled(bool mask){
+    this->renderThread.renderMask(mask);
+    FOVChanged(this->mapToScene(rect()).boundingRect());
+}
 
 void MainGraphicsView::mousePressEvent(QMouseEvent *event){
     this->mousePress = true;
     this->mousePos = event->pos();
     setCursor(Qt::ClosedHandCursor);
-    event->ignore();
     previousPan = event->pos();
+    QGraphicsView::mousePressEvent(event);
 }
 
 void MainGraphicsView::mouseReleaseEvent(QMouseEvent *event){
     this->mousePress = false;
     this->mousePos = event->pos();
     setCursor(Qt::ArrowCursor);
-    event->ignore();
     previousPan = event->pos();
+    QGraphicsView::mouseReleaseEvent(event);
 }
 
-void MainGraphicsView::mouseMoveEvent(QMouseEvent *event){// only when mouse pressed and move will this function invoked
+void MainGraphicsView::mouseMoveEvent(QMouseEvent *event){
     this->mousePos = event->pos();
     if(mousePress){
         pan(event->pos());
     }
     previousPan = event->pos();
     QGraphicsView::mouseMoveEvent(event);
+
 }
 
+void MainGraphicsView::resizeEvent(QResizeEvent *event){
+    QRect rect = QRect(QPoint(0, 0), event->size());
+    QRectF FOV = this->mapToScene(rect).boundingRect();
+    FOVChanged(FOV);
+    QGraphicsView::resizeEvent(event);
+}
 
 void MainGraphicsView::wheelEvent(QWheelEvent *event){
     int numDegrees = event->angleDelta().y();
-    int numSteps = numDegrees / 15;
     zoomToScenePos = mapToScene(event->position().toPoint());
     zoomToViewPos = event->position();
-    zoom(numSteps);
+    zoom(numDegrees);
 }
-void MainGraphicsView::scaleScene(){
-    
-    
-}
+
 
 void MainGraphicsView::initShow(){
-    // setEnabled(true);
-    // setMouseTracking(true);
-    // scene->clear();
-    // scene->addPixmap(QPixmap::fromImage(this->img));
-    // scene->update();
-    // this->resetTransform();
-    // this->setSceneRect(img.rect());
-    // this->fitInView(QRect(0, 0, img.width(), img.height()), Qt::KeepAspectRatio);
-
-
-}
-
-void MainGraphicsView::updateContent(QGraphicsPixmapItem* item){
-
-}
-
-void MainGraphicsView::zoom(float numSteps){
-    if(this->reader.isNull()||this->renderThread.isNull()){
+    if(this->reader.isNull()){
         return;
     }
-    this->scheduledZoom += numSteps;
-    if(this->scheduledZoom*numSteps<0){//inverse zoom
-        this->scheduledZoom = numSteps;
+    this->setSceneRect(QRectF(0,0,this->reader->getLevelWidth(0),this->reader->getLevelHeight(0)));
+    double currentScale = this->transform().m11();
+    this->scale(globalSettings.getDoubleValue("minZoom")/currentScale,globalSettings.getDoubleValue("minZoom")/currentScale);
+    FOVChanged(this->mapToScene(rect()).boundingRect());
+}
+
+void MainGraphicsView::addNewItem(QSharedPointer<QGraphicsItem> item){
+    this->scene->addItem(item.data());
+}
+
+void MainGraphicsView::removeItem(QSharedPointer<QGraphicsItem> item){
+    this->scene->removeItem(item.data());
+}
+
+void MainGraphicsView::zoom(int numDegrees){
+    if(this->reader.isNull()){
+        return;
     }
-    float factor = numSteps>0?1.1:0.9;
-    // if(factor*this->transform().m11()>1.0||factor*this->transform().m11()<1/this->reader->getScaleBetweenLevels(0,this->reader->getLevelCount()-1)){
-    //     factor = 1.0;
-    // }
+    double factor = 1.0;
+    if(numDegrees>0){
+        factor = 1.1;
+    }else{
+        factor = 0.9;
+    }
+    double m11 = this->transform().m11();
+    if(m11*factor > globalSettings.getDoubleValue("maxZoom")){
+        return;
+    }else if(m11*factor < globalSettings.getDoubleValue("minZoom")){
+        return;
+    }
 
     this->scale(factor, factor);
+    centerOn(this->zoomToScenePos);
+    QPointF deltaViewPortPos = this->zoomToViewPos - QPointF(width()/2., height()/2.);
+    QPointF viewPortCenter = mapFromScene(this->zoomToScenePos) - deltaViewPortPos;
+    centerOn(mapToScene(viewPortCenter.toPoint()));
 
-
-    // centerOn(this->zoomToScenePos);
-    // QPointF deltaViewPortPos = this->zoomToViewPos - QPointF(width()/2., height()/2.);
-    // QPointF viewPortCenter = mapFromScene(this->zoomToScenePos) - deltaViewPortPos;
-    // centerOn(mapToScene(viewPortCenter.toPoint()));
-
-    FOVChanged();
-    
+    QRectF FOV = this->mapToScene(rect()).boundingRect();
+    FOVChanged(FOV);
 }
-
-void MainGraphicsView::FOVChanged(){
-    QRectF FOV = this->mapToScene(this->rect()).boundingRect();
-    int64_t bestLevel = this->reader->getBestLevelForDownsample(1.0/this->transform().m11());
-    qreal x = FOV.x()/this->transform().m11();
-    qreal y = FOV.y()/this->transform().m11();
-    qreal w = FOV.width()/this->transform().m11();
-    qreal h = FOV.height()/this->transform().m11();
-    cv::Mat mat = this->reader->getRegionMat(bestLevel,qMax(0.,x),qMax(0.,y),qMin(w,this->reader->getLevelWidth(bestLevel)-1-x+1),qMin(h,this->reader->getLevelHeight(bestLevel)-1-y+1));
-    QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap::fromImage(QImage(mat.data,mat.cols,mat.rows,mat.step,QImage::Format_RGB888)));
-    item->setScale(1./this->transform().m11());
-    item->setPos(x,y);
-    this->scene->clear();
-    this->scene->addItem(item);
-
-}
-
-// void MainGraphicsView::scaleingTime(qreal x){
-//     qreal factor = 1.0 + qreal(this->scheduledZoom) * x/300.;
-//     float maxDownsapmple = 1./this->sceneScale;
-//     QRectF FOV = this->mapToScene(this->rect()).boundingRect();
-//     QRectF FOVImage = QRectF(FOV.left() / this->sceneScale, FOV.top() / this->sceneScale, FOV.width() / this->sceneScale, FOV.height() / this->sceneScale);
-//     float scaleX = static_cast<float>(this->reader->getLevelWidth(0))/ FOVImage.width();
-//     float scaleY = static_cast<float>(this->reader->getLevelHeight(0))/ FOVImage.height();
-//     float minScale = qMin(scaleX, scaleY);
-//     float maxScale = qMax(scaleX, scaleY);
-//     if((factor<1.0&&maxScale<0.5)||(factor>1.0&&minScale>2.0*maxDownsapmple)){
-//         return;
-//     }
-//     scale(factor, factor);
-//     centerOn(this->zoomToScenePos);
-//     QPointF deltaViewPortPos = this->zoomToViewPos - QPointF(width()/2., height()/2.);
-//     QPointF viewPortCenter = mapFromScene(this->zoomToScenePos) - deltaViewPortPos;
-//     centerOn(mapToScene(viewPortCenter.toPoint()));
-//     qDebug()<<FOVImage;
-// }
-
-// void MainGraphicsView::zoomFinished(){
-//     if(this->scheduledZoom > 0){
-//         scheduledZoom--;
-//     }else{
-//         scheduledZoom++;
-//     }
-//     sender()->deleteLater();
-// }
-
 void MainGraphicsView::pan(const QPoint &panTo){
+    if(this->reader.isNull()){
+        return;
+    }
     QScrollBar *hBar = horizontalScrollBar();
     QScrollBar *vBar = verticalScrollBar();
     QPointF delta = panTo - previousPan;
     previousPan = panTo;
-    hBar->setValue(hBar->value() - delta.x()/this->transform().m11());
-    vBar->setValue(vBar->value() - delta.y()/this->transform().m11());
-
-    FOVChanged();
+    hBar->setValue(hBar->value() - delta.x());
+    vBar->setValue(vBar->value() - delta.y());
+    QRectF FOV = this->mapToScene(rect()).boundingRect();
+    FOVChanged(FOV);
 }
+void MainGraphicsView::FOVChanged(QRectF FOV){
+    if(this->reader.isNull()){
+        return;
+    }
+    int64_t level = this->reader->getBestLevelForDownsample(1.0/this->transform().m11());
+    this->renderThread.requestRegion(level, FOV);
+
+}
+
+

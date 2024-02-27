@@ -59,7 +59,7 @@ MaskImage ScopeFileReader::readRegion(int64_t level, int64_t x, int64_t y, int64
         return MaskImage(nullptr,0,0,false);
     }
     if(x<0 || y<0 || x+w>this->header.getLevelInfo(level).width || y+h>this->header.getLevelInfo(level).height){
-        qWarning()<<"ScopeFileReader: Try to read from an invalid region!";
+        qWarning()<<"ScopeFileReader: Try to read from an invalid region! x:"<<x<<" y:"<<y<<" w:"<<w<<" h:"<<h<<"levelWidth:"<<this->header.getLevelInfo(level).width<<" levelHeight:"<<this->header.getLevelInfo(level).height;
         return MaskImage(nullptr,0,0,false);
     }
     if(!this->file->isOpen()){
@@ -99,7 +99,7 @@ MaskImage ScopeFileReader::readRegion(int64_t level, int64_t x, int64_t y, int64
         //region entirely inlcuded in a specific patch
         if(patchX1<=regionX1&&patchY1<=regionY1&&patchX2>=regionX2&&patchY2>=regionY2){
             MaskImage patch = this->readPatch(level, i);
-            return patch.crop(regionX1-patchX1, regionY1-patchY1, patchWidth, patchHeight);
+            return patch.crop(regionX1-patchX1, regionY1-patchY1, w, h);
         }
         //patch entire included in a specific region
         if(between(patchX1, regionX1, regionX2)&&between(patchY1, regionY1, regionY2)&&between(patchX2, regionX1, regionX2)&&between(patchY2, regionY1, regionY2)){
