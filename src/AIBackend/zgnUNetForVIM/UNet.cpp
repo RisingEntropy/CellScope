@@ -8,23 +8,23 @@
 #include <QDebug>
 #include <QObject>
 #include <vcruntime_string.h>
-UNet::UNet(){
+zgnUNetForVIM::UNet::UNet(){
     this->paramPath = "";
     this->binPath = "";
     loadDefualtProperty();
 }
-UNet::UNet(QString paramPath, QString binPath){
+zgnUNetForVIM::UNet::UNet(QString paramPath, QString binPath){
     this->paramPath = paramPath;
     this->binPath = binPath;
     loadDefualtProperty();
 }
-void UNet::setParamPath(QString paramPath){
+void zgnUNetForVIM::UNet::setParamPath(QString paramPath){
     this->paramPath = paramPath;
 }
-void UNet::setBinPath(QString binPath){
+void zgnUNetForVIM::UNet::setBinPath(QString binPath){
     this->binPath = binPath;
 }
-void UNet::loadModel(){
+void zgnUNetForVIM::UNet::loadModel(){
     if(this->net.load_param(this->paramPath.toStdString().c_str())){
         this->valid_ = false;
         this->invalidReason_ = "Failed to load param file.";
@@ -38,9 +38,9 @@ void UNet::loadModel(){
     this->valid_ = true;
     this->modelLoaded = true;
 }
-void UNet::preprocess(cv::Mat &input){
+void zgnUNetForVIM::UNet::preprocess(cv::Mat &input){
 }
-bool UNet::infer(cv::Mat& input, cv::Mat& output){
+bool zgnUNetForVIM::UNet::infer(cv::Mat& input, cv::Mat& output){
     if(input.type()!=CV_8UC3){
         qWarning()<<"UNet: wrong input format";
         return false;
@@ -79,25 +79,25 @@ bool UNet::infer(cv::Mat& input, cv::Mat& output){
     result.convertTo(output, CV_8UC1);
     return true;
 }
-void UNet::clear(){
+void zgnUNetForVIM::UNet::clear(){
     //clean ncnn network
     this->net.clear();
     this->modelLoaded = false;
     this->valid_ = false;
 }
-bool UNet::valid(){
+bool zgnUNetForVIM::UNet::valid(){
     return this->valid_;
 }
-QString UNet::invalidReason(){
+QString zgnUNetForVIM::UNet::invalidReason(){
     return this->invalidReason_;
 }
-QString UNet::name(){
-    return QString("DeepResUNet20240217");
+QString zgnUNetForVIM::UNet::name(){
+    return QString("zgnUNetForVIM");
 }
-QString UNet::info(){
+QString zgnUNetForVIM::UNet::info(){
     return QString(QObject::tr("VIM stin"));
 }
-void UNet::loadDefualtProperty(){
+void zgnUNetForVIM::UNet::loadDefualtProperty(){
     this->setBoolProperty("doResize", false);
     this->setDoubleProperty("RNormalize", 1/255.);
     this->setDoubleProperty("GNormalize", 1/255.);
@@ -106,7 +106,7 @@ void UNet::loadDefualtProperty(){
     this->setBoolProperty("lightMode", false);
     this->setDoubleProperty("threshold", 1.5);
 }
-void UNet::setGPUEnable(bool enable){
+void zgnUNetForVIM::UNet::setGPUEnable(bool enable){
     if(this->modelLoaded){
         qWarning()<<"UNet: Please set GPU enable before loading model.";
     }else{
@@ -115,7 +115,7 @@ void UNet::setGPUEnable(bool enable){
         this->hasGPUInstance = true;
     }
 }
-UNet::~UNet(){
+zgnUNetForVIM::UNet::~UNet(){
     if(this->modelLoaded){
         this->clear();
     }

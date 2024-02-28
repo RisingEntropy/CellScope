@@ -6,6 +6,9 @@ void ScopeFileMetaData::setProperty(QString key, QString value){
     this->properties[key] = value;
 }
 QString ScopeFileMetaData::getProperty(QString key)const{
+    if(!this->properties.contains(key)){
+        return QString();
+    }
     return this->properties[key];
 }
 ScopeFileMetaData ScopeFileMetaData::loadFromJSONString(QString &jsonString)

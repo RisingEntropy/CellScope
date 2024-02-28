@@ -92,7 +92,9 @@
         "qobject": "cpp",
         "qscrollbar": "cpp",
         "qimage": "cpp",
-        "qaction": "cpp"
+        "qaction": "cpp",
+        "qjsondocument": "cpp",
+        "*.in": "c"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.errorSquiggles": "enabled"

@@ -3,9 +3,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QString>
-#include <../task/SequencedAsyncTask.h>
 #include <QSharedPointer>
-#include "../task/Task.h"
 #include "ui_AIProcessWindow.h"
 #include <QTimer>
 #include <QDateTime>

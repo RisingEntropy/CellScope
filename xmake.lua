@@ -67,10 +67,11 @@ add_requires("ncnn_shared", {configs = {shared = true}})
 add_requires("opencv","libtiff", "minizip", "openslide", "libzip")
 add_cxflags("/EHsc")
 -- add_requires("itk")
-
+CONFIG_VERSION = "beta 0.1"
 set_languages("c11", "c++17")
+set_optimize("fastest")
 target("CellScope")
-    add_ldflags("/SUBSYSTEM:CONSOLE") 
+    -- add_ldflags("/SUBSYSTEM:CONSOLE") 
     add_rules("qt.widgetapp")
     add_headerfiles("src/*.h","src/io/*.h", "src/scopeFile/*.h","src/ui/*.h", "src/onRequestTask/*.h")
 
@@ -82,10 +83,12 @@ target("CellScope")
     add_files("res/*.qrc")
     add_files("src/ui/mainwindow.ui", "src/ui/AIProcessWindow.ui")
     
-    add_files("src/*.cpp","src/io/*.cpp", "src/scopeFile/*.cpp", "src/task/*.cpp", "src/ui/*.cpp", "src/onRequestTask/*.cpp")
+    add_files("src/*.cpp","src/io/*.cpp", "src/scopeFile/*.cpp", "src/ui/*.cpp", "src/onRequestTask/*.cpp")
 
-    add_files("src/ui/*.h", "src/onRequestTask/*.h", "src/task/*.h", "src/*.h")
-
+    add_files("src/ui/*.h", "src/onRequestTask/*.h", "src/*.h")
+    add_includedirs("$(buildir)/config")
+    set_configdir("$(buildir)/config")
+    add_configfiles("src/Config.h.in", {variables = {CONFIG_VERSION = CONFIG_VERSION, CONFIG_NAME = "CellScope"}})
     -- add files with Q_OBJECT meta (only for qt.moc)
 
 target("AIBackend")

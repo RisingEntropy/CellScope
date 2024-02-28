@@ -28,7 +28,7 @@ MainGraphicsView::MainGraphicsView(QWidget *parent):QGraphicsView(parent){
 
     connect(&this->renderThread, &RenderThread::addTile, this, &MainGraphicsView::addNewItem);
     connect(&this->renderThread, &RenderThread::removeTile, this, &MainGraphicsView::removeItem);
-
+    connect(&this->renderThread, &RenderThread::updateCurrentViewCellSize, this, &MainGraphicsView::onCellSizeUpdate);
 }
 
 MainGraphicsView::~MainGraphicsView(){
@@ -47,6 +47,7 @@ void MainGraphicsView::setOpenSlideFile(QString filename){
     this->reader.reset(new OpenSlideFileReader(filename));
     this->renderThread.installTiledImage(this->reader);
     initShow();
+    emit updateTotalSize(this->reader->getLevelWidth(0)*this->reader->getLevelHeight(0));
 }
 
 void MainGraphicsView::setMaskEnabled(bool mask){
@@ -83,8 +84,8 @@ void MainGraphicsView::mouseMoveEvent(QMouseEvent *event){
 void MainGraphicsView::resizeEvent(QResizeEvent *event){
     QRect rect = QRect(QPoint(0, 0), event->size());
     QRectF FOV = this->mapToScene(rect).boundingRect();
-    FOVChanged(FOV);
     QGraphicsView::resizeEvent(event);
+    FOVChanged(FOV);
 }
 
 void MainGraphicsView::wheelEvent(QWheelEvent *event){
@@ -106,11 +107,17 @@ void MainGraphicsView::initShow(){
 }
 
 void MainGraphicsView::addNewItem(QSharedPointer<QGraphicsItem> item){
+    this->currentViewSize+=item->boundingRect().width()*item->boundingRect().height()*item->scale()*item->scale();
     this->scene->addItem(item.data());
+    QRectF FOV = this->mapToScene(rect()).boundingRect();
+    emit updateFOVSize(qMin(this->currentViewSize, int64_t(FOV.width()*FOV.height())));
 }
 
 void MainGraphicsView::removeItem(QSharedPointer<QGraphicsItem> item){
+    this->currentViewSize-=item->boundingRect().width()*item->boundingRect().height()*item->scale()*item->scale();
     this->scene->removeItem(item.data());
+    QRectF FOV = this->mapToScene(rect()).boundingRect();
+    emit updateFOVSize(qMin(this->currentViewSize, int64_t(FOV.width()*FOV.height())));
 }
 
 void MainGraphicsView::zoom(int numDegrees){
@@ -158,7 +165,9 @@ void MainGraphicsView::FOVChanged(QRectF FOV){
     }
     int64_t level = this->reader->getBestLevelForDownsample(1.0/this->transform().m11());
     this->renderThread.requestRegion(level, FOV);
-
+    emit updateFOVSize(qMin(this->currentViewSize, int64_t(FOV.width()*FOV.height())));
 }
 
-
+void MainGraphicsView::onCellSizeUpdate(int64_t size){
+    emit updateCellSize(size);
+}

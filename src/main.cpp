@@ -1,4 +1,4 @@
-#include "io/OpenSlideFileReader.h"
+﻿#include "io/OpenSlideFileReader.h"
 #include "io/MetaFileManager.h"
 #include "GlobalResources.h"
 #include <QFile>
@@ -14,11 +14,17 @@
 #include "ui/AIProcessWindow.h"
 #include "ui/RenderThread.h"
 #include "scopeFile/ScopeFileReader.h"
+#include "Config.h"
 #include <QObject>
+#include <QTextCodec>
+
 GlobalSettings globalSettings;
 MetaFileManager metaFileManager("./config");
+ModelZoo modelZoo;
 void init(){
     qRegisterMetaType<int64_t>("int64_t");
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    QTextCodec::setCodecForLocale(codec);
     if(!metaFileManager.valid()){
         qDebug()<<"Meta file manager is not valid. Initializing a new one";
         QDir dir("./config");
@@ -59,8 +65,9 @@ void cleanUp(){
 int main(int argc, char *argv[]){
     QApplication a(argc,argv);
     init();
-    
+
     MainWindow w;
+    w.setWindowTitle(QString("%1, version:%2").arg(CONFIG_NAME).arg(CONFIG_VERSION));
     w.show();
     QObject::connect(&a, &QApplication::aboutToQuit, &cleanUp);
     return a.exec();

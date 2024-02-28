@@ -5,9 +5,6 @@
 #include <AIUtility.h>
 #include <Inferable.h>
 #include <zgnUNetForVIM/UNet.h>
-#include "../task/SimpleTask.h"
-#include "../task/AIInferTask.h"
-#include "../task/SequencedAsyncTask.h"
 #include "../GlobalResources.h"
 #include "../onRequestTask/SimpleSyncTask.h"
 #include "../onRequestTask/QueuedAsyncTask.h"
@@ -16,6 +13,7 @@
 #include "../Utils.h"
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QComboBox>
 AIProcessWindow::AIProcessWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::AIProcessWindow){
@@ -23,6 +21,8 @@ AIProcessWindow::AIProcessWindow(QWidget *parent) :
     if(AIUtility::hasGPU()){
         ui->GPUCheckBox->setEnabled(true);
     }
+    ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    ui->comboBox->addItems(modelZoo.getModelList());
     QObject::connect(&this->timer, &QTimer::timeout, this, &AIProcessWindow::timerOut);
 }
 AIProcessWindow::~AIProcessWindow(){
@@ -39,8 +39,7 @@ void AIProcessWindow::closeEvent(QCloseEvent *event){
     this->cleanUP();
     event->accept();
 }
-void AIProcessWindow::openImageFile()
-{
+void AIProcessWindow::openImageFile(){
     QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     this->imagePath = QFileDialog::getOpenFileName(this, tr("Open Image"), desktop, tr("WSI Files(*.svs *.tif *.dcm *.vms *.vmu *.ndpi *.scn *.mrxs *.tiff *.svslide *.bif)"));
     if(this->imagePath==""){
@@ -77,13 +76,23 @@ void AIProcessWindow::start(){
     ui->secondaryProgressBar->setValue(0);
     ui->primiaryProgressBar->setStyleSheet("");
     ui->secondaryProgressBar->setStyleSheet("");
+
+    if(ui->patientLineEdit->text().isEmpty()){
+        QMessageBox::warning(this, tr("Warning"), tr("Patient name is empty!"));
+        return;
+    }
+
     QSharedPointer<OpenSlideFileReader> reader(new OpenSlideFileReader(this->imagePath));
     QSharedPointer<ScopeFileWriter> writer(new ScopeFileWriter(this->savePath));
-    QSharedPointer<Inferable> inferable(new UNet(globalSettings.getStringValue("zgnUNetParamPath"), globalSettings.getStringValue("zgnUNetBinPath")));
+    QSharedPointer<Inferable> inferable = modelZoo.getModel(ui->comboBox->currentText());
     inferable->setGPUEnable(ui->GPUCheckBox->isChecked());
-    this->task->addTask(new SimpleSyncTask([inferable](QString& failReason){
+    this->task->addTask(new SimpleSyncTask([inferable, writer, this](QString& failReason){
         inferable->loadModel();
         if(inferable->valid()){
+            writer->getHeader().metaData.setProperty("patient", this->ui->patientLineEdit->text());
+            writer->getHeader().metaData.setProperty("date", this->ui->dateTimeEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss"));
+            writer->getHeader().metaData.setProperty("networkVersion", inferable->name());
+            writer->getHeader().metaData.setProperty("comment", this->ui->textEdit->toPlainText());
             return OnRequestTask::SUCCESS;
         }else{
             failReason = "AI model is not valid, reason: "+inferable->invalidReason();
@@ -96,8 +105,9 @@ void AIProcessWindow::start(){
 
     this->task->addTask(aiInferTask);
 
-    this->task->addTask(new SimpleSyncTask([writer, reader,this](QString& failReason){
+    this->task->addTask(new SimpleSyncTask([writer, reader, inferable,this, aiInferTask](QString& failReason){
         writer->getHeader().metaData.setProperty("imageFileFastHash", QString::number(Utils::fashHash(this->imagePath)));
+        writer->getHeader().metaData.setProperty("totalCellSize", QString::number(aiInferTask->getTotalCellArea()));
         if(writer->finish()){
             return OnRequestTask::SUCCESS;
         }else{

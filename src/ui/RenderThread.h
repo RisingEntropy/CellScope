@@ -44,6 +44,7 @@ private:
     bool tiledFileReaderInstalled;
     bool scopeFileReaderInstalled;
     QVector<QMap<std::tuple<int64_t, int64_t, int64_t>, QSharedPointer<QGraphicsPixmapItem> > > cache;
+    QVector<QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t> > sizeCache;
 private slots:
 
     void _requestRegion(int64_t level, QRectF FOVImage);
@@ -61,14 +62,12 @@ signals:
     void addTile(QSharedPointer<QGraphicsPixmapItem> item);
     void removeTile(QSharedPointer<QGraphicsPixmapItem> item);
 
+    void updateScopeFileMetaData(ScopeFileMetaData metaData);
     void updateCurrentViewCellSize(int64_t size);
     void updateCurrentViewCellNums(int64_t count);
-    void updateScopeFileMetaData(ScopeFileMetaData);
-    
+
+
     void internalRequestRegion(int64_t level, QRectF FOVImage);
-
-
-
     void internalInstallTiledImage(QString path);
     void internalInstallTiledImagePointer(QSharedPointer<OpenSlideFileReader> reader);
     void internalUninstallTiledImage();
