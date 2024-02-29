@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>AI Assiatant</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../res/pics.qrc">
+    <normaloff>:/icons/scope.svg</normaloff>:/icons/scope.svg</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
@@ -416,7 +420,9 @@
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../res/pics.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>pushButton</sender>

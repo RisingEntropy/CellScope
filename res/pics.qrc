@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>scope.svg</file>
     <file>About.svg</file>
     <file>AI.svg</file>
     <file>select.svg</file>
