@@ -15,6 +15,7 @@ public:
     virtual void run() override;
     virtual QString getTaskName() override;
     int64_t getTotalCellArea();
+    int64_t getTotalCellCount();
 private:
     inline double getLevelScaleXFromLevel0(int64_t level);
     inline double getLevelScaleYFromLevel0(int64_t level);
@@ -31,6 +32,7 @@ private:
     unsigned char compressLevel;
     double dropEdgeRatio = 0.1;
     int64_t totalCellArea = 0;
+    int64_t totalCellCount = 0;
     QSharedPointer<Inferable> inferable;
     QSharedPointer<OpenSlideFileReader> reader;
     QSharedPointer<ScopeFileWriter> writer;

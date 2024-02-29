@@ -76,7 +76,9 @@ bool ScopeFileWriter::addPatch(int64_t level, int64_t x, int64_t y, MaskImage& m
     stream.setByteOrder(QDataStream::BigEndian);
     stream.device()->seek(currentPosition);
     
-    int64_t serialNumber = levelInfos[level]->patchNum, compressedDataSize, uncompressedDataSize;
+    int64_t serialNumber = levelInfos[level]->patchNum, cellCount;
+    uint64_t compressedDataSize, uncompressedDataSize;
+    cellCount = mask.getCellCount();
     levelInfos[level]->patchNum++;
     levelInfos[level]->patchDataOffsets.push_back(currentPosition);
     levelInfos[level]->patchWidths.push_back(mask.getWidth());
@@ -107,7 +109,7 @@ bool ScopeFileWriter::addPatch(int64_t level, int64_t x, int64_t y, MaskImage& m
         qDebug()<<"ScopeFileWriter: Failed to compress the patch data! return code:"<<ret;
         return false;
     }
-    stream<<serialNumber<<compressedDataSize<<uncompressedDataSize;
+    stream<<serialNumber<<compressedDataSize<<uncompressedDataSize<<cellCount;
     stream.writeRawData(reinterpret_cast<char *>(compressedData), compressedDataSize);
     currentPosition = file->pos();
     delete[] compressedData;

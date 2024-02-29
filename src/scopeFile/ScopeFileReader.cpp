@@ -70,6 +70,7 @@ MaskImage ScopeFileReader::readRegion(int64_t level, int64_t x, int64_t y, int64
     unsigned char compressLevel = levelInfo.compressLevel;
     
     MaskImage maskImage(w,h);
+    maskImage.setCellCount(0);
     int64_t regionX1 = x;
     int64_t regionY1 = y;
     int64_t regionX2 = x+w-1;
@@ -141,9 +142,11 @@ MaskImage ScopeFileReader::readPatch(int64_t level, int64_t patchSerialNumber){
     uint64_t patchDataOffset = this->header.getLevelInfo(level).patchDataOffsets[patchSerialNumber];
     int64_t patchWidth = this->header.getLevelInfo(level).patchWidths[patchSerialNumber];
     int64_t patchHeight = this->header.getLevelInfo(level).patchHeights[patchSerialNumber];
-    uint64_t dataSizeCompressed, dataSizeUncompressed, actualUncompressedSize, actualSerialNumber;
+    uint64_t dataSizeCompressed, dataSizeUncompressed, actualUncompressedSize;
+    int64_t actualSerialNumber, cellCount;
+
     in.device()->seek(patchDataOffset);
-    in>>actualSerialNumber>>dataSizeCompressed>>dataSizeUncompressed;
+    in>>actualSerialNumber>>dataSizeCompressed>>dataSizeUncompressed>>cellCount;
     if(actualSerialNumber!=patchSerialNumber){
         qWarning()<<"ScopeReader: The actual serial number is different from the expected serial number! Please check the file!";
         return MaskImage(nullptr,0,0,false);
@@ -170,6 +173,7 @@ MaskImage ScopeFileReader::readPatch(int64_t level, int64_t patchSerialNumber){
         return MaskImage(nullptr,0,0,false);
     }
     MaskImage patch(uncompressedBuf,patchWidth,patchHeight,true);// performance might be slew down here, leve it later
+    patch.setCellCount(cellCount);
     delete[] compressedBuf;
     delete[] uncompressedBuf;
     return patch;

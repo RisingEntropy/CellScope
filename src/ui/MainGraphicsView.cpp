@@ -29,13 +29,17 @@ MainGraphicsView::MainGraphicsView(QWidget *parent):QGraphicsView(parent){
     connect(&this->renderThread, &RenderThread::addTile, this, &MainGraphicsView::addNewItem);
     connect(&this->renderThread, &RenderThread::removeTile, this, &MainGraphicsView::removeItem);
     connect(&this->renderThread, &RenderThread::updateCurrentViewCellSize, this, &MainGraphicsView::onCellSizeUpdate);
+    connect(&this->renderThread, &RenderThread::updateCurrentViewCellNums, this, &MainGraphicsView::onCellCountUpdate);
+
 }
 
 MainGraphicsView::~MainGraphicsView(){
     this->renderThread.stop();
 }
 
-
+void MainGraphicsView::onCellCountUpdate(int64_t totalCount){
+    emit updateCellCount(totalCount);
+}
 
 void MainGraphicsView::setScopeFile(QString filename){
     this->renderThread.installScopeFile(filename);

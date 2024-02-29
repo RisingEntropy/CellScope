@@ -105,9 +105,8 @@ void AIProcessWindow::start(){
 
     this->task->addTask(aiInferTask);
 
-    this->task->addTask(new SimpleSyncTask([writer, reader, inferable,this, aiInferTask](QString& failReason){
+    this->task->addTask(new SimpleSyncTask([writer, reader, inferable,this](QString& failReason){
         writer->getHeader().metaData.setProperty("imageFileFastHash", QString::number(Utils::fashHash(this->imagePath)));
-        writer->getHeader().metaData.setProperty("totalCellSize", QString::number(aiInferTask->getTotalCellArea()));
         if(writer->finish()){
             return OnRequestTask::SUCCESS;
         }else{

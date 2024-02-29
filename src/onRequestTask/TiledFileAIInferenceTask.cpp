@@ -122,14 +122,18 @@ void TiledFileAIInferenceTask::run(){
             }
             this->cropMask(xOffset,yOffset,mask);
             MaskImage maskImage = MaskImage::fromMat(mask);//use small patch for higher levels, this will cause inefficient storage. User new algorithms later
+            MaskImage::statisticsCellCount(maskImage);
+            int64_t cellCount = maskImage.getCellCount();
             this->writer->addPatch(0,xOffset,yOffset,maskImage);
             this->totalCellArea += maskImage.bitCount<true>();
+            this->totalCellCount += cellCount;
             for(int64_t level = 1;level<this->reader->getLevelCount();level++){
                 double scaleX = getLevelScaleXFromLevel0(level);
                 double scaleY = getLevelScaleYFromLevel0(level);
                 int64_t newX = 1.0*xOffset/scaleX, newY = 1.0*yOffset/scaleY;
                 int64_t newW = 1.0*maskImage.getWidth()/scaleX, newH = 1.0*maskImage.getHeight()/scaleY;
                 MaskImage newMaskImage = maskImage.resizeNearestAndCopy(newW,newH);
+                newMaskImage.setCellCount(cellCount);
                 this->writer->addPatch(level,newX,newY,newMaskImage);
             }
             this->currentPatches++;
@@ -139,7 +143,8 @@ void TiledFileAIInferenceTask::run(){
     if(this->currentPatches!=this->totalPatches){
         qWarning()<<"AIInferTask: The number of patches processed is not equal to the total number of patches, this is a bug, please report to the developer!";
     }
-    this->writer->getHeader().metaData.setProperty("TotoalCellArea",QString::number(this->totalCellArea));
+    this->writer->getHeader().metaData.setProperty("totalCellSize",QString::number(this->totalCellArea));
+    this->writer->getHeader().metaData.setProperty("totalCellCount",QString::number(this->totalCellCount));
     this->switchState(OnRequestTask::SUCCESS);
     emit successSignal();
 }
@@ -240,4 +245,8 @@ inline void TiledFileAIInferenceTask::cropMask(int64_t x, int64_t y, cv::Mat &ma
                         qMin((int64_t)(patchSize*(1-this->dropEdgeRatio)),this->reader->getLevelWidth(0)-1-x+1),//width = coord_r - coord_l +1, coord_r = xxx.getLevelWidth(0)
                         qMin((int64_t)(patchSize*(1-this->dropEdgeRatio)),this->reader->getLevelHeight(0)-1-y+1)));
     
+}
+
+int64_t TiledFileAIInferenceTask::getTotalCellCount(){
+    return this->totalCellCount;
 }

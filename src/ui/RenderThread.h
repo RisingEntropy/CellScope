@@ -45,6 +45,7 @@ private:
     bool scopeFileReaderInstalled;
     QVector<QMap<std::tuple<int64_t, int64_t, int64_t>, QSharedPointer<QGraphicsPixmapItem> > > cache;
     QVector<QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t> > sizeCache;
+    QVector<QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t > > countCache;
 private slots:
 
     void _requestRegion(int64_t level, QRectF FOVImage);

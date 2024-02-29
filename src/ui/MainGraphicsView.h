@@ -21,8 +21,9 @@ public:
     void setMaskEnabled(bool);
 signals:
     void updateFOVSize(int64_t FOVSize);
-    void updateCellSize(int64_t CellSize);
-    void updateTotalSize(int64_t TotalSize);
+    void updateCellSize(int64_t cellSize);
+    void updateTotalSize(int64_t totalSize);
+    void updateCellCount(int64_t cellCount);
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -31,6 +32,7 @@ protected:
     void resizeEvent(QResizeEvent * event ) override;
 private slots:
     void onCellSizeUpdate(int64_t size);
+    void onCellCountUpdate(int64_t count);
 private:
     void initShow();
     void addNewItem(QSharedPointer<QGraphicsItem> item);

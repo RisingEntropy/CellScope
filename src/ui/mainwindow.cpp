@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->mainGraphicsView, &MainGraphicsView::updateTotalSize, [this](int64_t size){
         ui->labelTotalArea->setText(QString::number(size));
     });
+    connect(ui->mainGraphicsView, &MainGraphicsView::updateCellCount, [this](int64_t count){
+        ui->labelCurrentCellCount->setText(QString::number(count));
+    });
 }
 
 MainWindow::~MainWindow(){
@@ -67,13 +70,20 @@ void MainWindow::SelectMask(){
         if(fastHash!=QString::number(Utils::fashHash(this->tiledImagePath))){
             QMessageBox::warning(this,"Error","The mask file is not for the current image");
             return;
+        }else if(header.version!=ScopeFileHeader::CURRENT_VERSION){
+            QMessageBox::warning(this,"Error","The mask file is not compatible with the current version");
+            return;
         }
         if(!header.metaData.getProperty("totalCellSize").isEmpty()){
             ui->labelTotalCellArea->setText(header.metaData.getProperty("totalCellSize"));
         }else{
             ui->labelTotalCellArea->setText("N/A");
         }
-        
+        if(!header.metaData.getProperty("totalCellCount").isEmpty()){
+            ui->labelTotalCellCount->setText(header.metaData.getProperty("totalCellCount"));
+        }else{
+            ui->labelTotalCellCount->setText("N/A");
+        }
         ui->mainGraphicsView->setScopeFile(path); 
         ui->checkBoxSegmentationMask->setEnabled(true);
         ui->checkBoxSegmentationMask->setChecked(false);

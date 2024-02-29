@@ -15,7 +15,9 @@ public:
     MaskImage(unsigned char* data, int64_t width, int64_t height, bool copy);
     MaskImage(const MaskImage& maskImage);
     MaskImage& operator=(const MaskImage& maskImage);
+    ~MaskImage();
     static MaskImage fromMat(cv::Mat &mask);
+    static void statisticsCellCount(MaskImage &mask);
     int64_t getWidth();
     int64_t getHeight();
     MaskImage crop(int64_t x, int64_t y, int64_t w, int64_t h);
@@ -34,12 +36,14 @@ public:
     template<bool BIT>
     int64_t bitCount();
     bool valid();
-    ~MaskImage();
+    void setCellCount(int64_t count);
+    int64_t getCellCount();
 private:
     MaskImage(); // do not allow creating an instance outside of the class
     int64_t width;
     int64_t height;
     int64_t bufSize;
+    int64_t cellCount = -1;
     QSharedPointer<unsigned char> data;
     inline bool accessBit(int64_t x, int64_t y);
     inline void setBit(int64_t x, int64_t y, bool bit);

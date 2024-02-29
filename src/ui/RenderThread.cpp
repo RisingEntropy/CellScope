@@ -99,6 +99,7 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
             emit removeTile(this->cache[level][x]);
             this->cache[level].remove(x);
             this->sizeCache[level].remove(x);
+            this->countCache[level].remove(x);
         }
     }
     for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
@@ -108,6 +109,7 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
                     emit removeTile(this->cache[i][x]);
                     this->cache[i].remove(x);
                     this->sizeCache[i].remove(x);
+                    this->countCache[i].remove(x);
                 }
             }
         }
@@ -117,6 +119,7 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
     int64_t widthInLevel = FOVImage.width() / this->tiledFileReader->getScaleBetweenLevels(0, level);
     int64_t heightInLevel = FOVImage.height() / this->tiledFileReader->getScaleBetweenLevels(0, level);
     int64_t cellSize = 0;
+    int64_t cellCount = 0;
     for(int64_t x = maxMultiple(xInLevel,this->tileSize);x <=xInLevel+widthInLevel;x+=this->tileSize){
         for(int64_t y = maxMultiple(yInLevel,this->tileSize);y <=yInLevel+heightInLevel;y+=this->tileSize){
             int64_t actualX = x*this->tiledFileReader->getScaleBetweenLevels(0, level);
@@ -124,6 +127,7 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
             auto key = std::make_tuple(x,y,level);
             if(this->cache[level].contains(key)){
                 cellSize+=this->sizeCache[level][key];
+                cellCount+=this->countCache[level][key];
                 continue;
             }
             if(x>=levelWidth || y>=levelHeight){
@@ -133,7 +137,7 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
             if(img.empty()){
                 continue;
             }
-            int64_t sze = 0;
+            int64_t sze = 0,cnt = 0;
             if(this->renderMaskFlag){
                 auto maskImage = this->scopeFileReader->readRegion(level, x,y,
                                                                     qMin(this->tileSize*1LL,levelWidth-1-x+1),
@@ -145,6 +149,10 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
                 cv::Mat mask = maskImage.toMat();
                 if(!mask.empty()){
                     sze = cv::sum(mask)[0]/255;
+                    if(maskImage.getCellCount()==-1){
+                        qDebug()<<"asdasdasd";
+                    }
+                    cnt = maskImage.getCellCount()==-1?0:maskImage.getCellCount();
                     cv::cvtColor(mask,mask, cv::COLOR_GRAY2RGB);
                     cv::addWeighted(img,(1-this->maskWeight),mask,this->maskWeight,0,img);
                 }else{
@@ -152,17 +160,21 @@ void RenderThread::_requestRegion(int64_t level, QRectF FOVImage){
                 }
             }
             cellSize+=sze*levelScale*levelScale;
-            this->sizeCache[level][key] = sze*levelScale*levelScale;
+            cellCount+=cnt;
+
             auto item = QSharedPointer<QGraphicsPixmapItem>(new QGraphicsPixmapItem(QPixmap::fromImage(QImage(img.data,img.cols,img.rows,img.step,QImage::Format_RGB888))));
             item->setPos(x*this->tiledFileReader->getScaleBetweenLevels(0, level),y*this->tiledFileReader->getScaleBetweenLevels(0, level));
             item->setScale(this->tiledFileReader->getScaleBetweenLevels(0, level));
             
+            this->sizeCache[level][key] = sze*levelScale*levelScale;
+            this->countCache[level][key] = cnt;
             this->cache[level][key] = item;
             emit addTile(item);
         }
     }
     if(this->renderMaskFlag){
         emit updateCurrentViewCellSize(cellSize);
+        emit updateCurrentViewCellNums(cellCount);
     }
     
 }
@@ -173,6 +185,7 @@ void RenderThread::_installTiledImage(QString path){
     for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
         this->cache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, QSharedPointer<QGraphicsPixmapItem> >());
         this->sizeCache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t>());
+        this->countCache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t>());
     }
     this->tiledFileReaderInstalled = true;
 
@@ -183,6 +196,7 @@ void RenderThread::_installTiledImagePointer(QSharedPointer<OpenSlideFileReader>
     for(int64_t i = 0;i<this->tiledFileReader->getLevelCount();i++){
         this->cache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, QSharedPointer<QGraphicsPixmapItem> >());
         this->sizeCache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t>());
+        this->countCache.push_back(QMap<std::tuple<int64_t, int64_t, int64_t>, int64_t>());
     }
     this->tiledFileReaderInstalled = true;
 }
@@ -193,6 +207,7 @@ void RenderThread::_uninstallTiledImage(){
                 emit removeTile(this->cache[i][x]);
                 this->cache[i].remove(x);
                 this->sizeCache[i].remove(x);
+                this->countCache[i].remove(x);
             }
         }
         this->tiledFileReader.reset();
@@ -234,6 +249,7 @@ void RenderThread::_renderMask(bool renderMaskFlag){
             emit removeTile(this->cache[i][x]);
             this->cache[i].remove(x);
             this->sizeCache[i].remove(x);
+            this->countCache[i].remove(x);
         }
     }
 }

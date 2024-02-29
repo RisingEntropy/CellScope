@@ -57,6 +57,7 @@ void GlobalSettings::loadDefualt(){
     this->setStringValue("zgnUNetBinPath","./models/zgnUNet/ncnn.bin");
     this->setStringValue("dropEdgeRatio","0.2");
     this->setIntValue("displayBufferPatchSize", 256);
-    this->setDoubleValue("maxZoom", 2.0);
+    this->setDoubleValue("maxZoom", 5.0);
     this->setDoubleValue("minZoom", 1.0/256);
+    this->setIntValue("cellCountThreshold", 50);
 }

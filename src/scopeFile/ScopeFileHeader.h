@@ -8,7 +8,7 @@
 class ScopeFileHeader{
 public:
     static const int32_t MAGIC_NUMBER = 0x037A;
-    static const int32_t CURRENT_VERSION = 1;
+    static const int32_t CURRENT_VERSION = 2;
     class LevelInfo{
         public:
             unsigned char compressLevel=255;

@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <stdint.h>
 #include <vcruntime_string.h>
+#include "../GlobalResources.h"
 MaskImage::MaskImage(){
     this->data = nullptr;
     this->bufSize = -1;
@@ -61,6 +62,7 @@ MaskImage::MaskImage(const MaskImage& maskImage){
         return;
     }
     this->data = maskImage.data;
+    this->cellCount = maskImage.cellCount;
     
 }
 MaskImage& MaskImage::operator=(const MaskImage& maskImage){
@@ -73,6 +75,7 @@ MaskImage& MaskImage::operator=(const MaskImage& maskImage){
         return *this;
     }
     this->data = maskImage.data;
+    this->cellCount = maskImage.cellCount;
     return *this;
 }
 MaskImage MaskImage::fromMat(cv::Mat &mask){
@@ -156,7 +159,23 @@ MaskImage MaskImage::crop(int64_t x, int64_t y, int64_t w, int64_t h){
             maskImage.setPixel(i, j, this->accessBit(x+i, y+j));
         }
     }
+    if(this->cellCount!=-1){
+        MaskImage::statisticsCellCount(maskImage);
+    }
     return maskImage;
+}
+void MaskImage::statisticsCellCount(MaskImage &mask){
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(mask.toMat(), contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    std::vector<std::vector<cv::Point>> filtered_contours;
+    int threshold = globalSettings.getIntValue("cellCountThreshold");
+    for (const auto& contour : contours) {
+        double area = contourArea(contour);
+        if (area >= threshold) {
+            filtered_contours.push_back(contour);
+        }
+  }
+    mask.setCellCount(filtered_contours.size());
 }
 QImage MaskImage::toQImage(QImage::Format format){
     if(this->bufSize==-1||this->data==nullptr){
@@ -200,6 +219,7 @@ MaskImage MaskImage::resizeNearestAndCopy(int64_t w, int64_t h){
             maskImage.setPixel(i, j, this->accessBit(i*this->width/w, j*this->height/h));
         }
     }
+    maskImage.cellCount = this->cellCount;
     return maskImage;
 }
 MaskImage MaskImage::resizeNearestAndCopy(double scaleX, double scaleY){
@@ -249,10 +269,24 @@ void MaskImage::fill(MaskImage& maskImage, int64_t x, int64_t y){
             this->setBit(x+i, y+j, maskImage.accessBit(i, j));
         }
     }
+    if(this->cellCount==-1&&maskImage.getCellCount()!=-1){
+        this->cellCount = maskImage.getCellCount();
+    }else{
+        this->cellCount += maskImage.getCellCount()==-1?0:maskImage.getCellCount();
+    }
+    
 }
 bool MaskImage::valid(){
     if((this->bufSize!=-1)&&(this->data!=nullptr)){
         return true;
     }
     return false;
+}
+
+void MaskImage::setCellCount(int64_t count){
+    this->cellCount = count;
+}
+
+int64_t MaskImage::getCellCount(){
+    return this->cellCount;
 }
